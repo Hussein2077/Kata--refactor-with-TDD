@@ -45,18 +45,27 @@ class BackstagePasses extends Item {
   }
 }
 
-class ElixirOfTheMongoose extends Item {
-  ElixirOfTheMongoose(int sellIn, int quality)
-      : super(name: 'Elixir of the Mongoose', sellIn: sellIn, quality: quality);
+class NormalItem extends Item {
+  NormalItem({required String name, required int sellIn, required int quality})
+      : super(name: name, sellIn: sellIn, quality: quality);
 
   @override
   void updateQuality() {
-    if (quality > 0) quality -= 1;
     sellIn -= 1;
-    if (sellIn < 0) {
-      if (quality > 0) quality -= 1;
-    }
+    if (quality > 0) quality -= 1;
+    if (sellIn < 0 && quality > 0) quality -= 1;
+    quality = quality.clamp(0, 50);
   }
+}
+
+class ElixirOfTheMongoose extends NormalItem {
+  ElixirOfTheMongoose(int sellIn, int quality)
+      : super(name: 'Elixir of the Mongoose', sellIn: sellIn, quality: quality);
+}
+
+class DexterityVest extends NormalItem {
+  DexterityVest(int sellIn, int quality)
+      : super(name: '+5 Dexterity Vest', sellIn: sellIn, quality: quality);
 }
 
 class ConjuredManaCake extends Item {
@@ -73,21 +82,9 @@ class ConjuredManaCake extends Item {
 
     if (sellIn < 0) {
       if (quality > 0) {
-        quality -= 1;
+        quality -= 2;
       }
     }
   }
 }
 
-class DexterityVest extends Item {
-  DexterityVest(int sellIn, int quality)
-      : super(name: '+5 Dexterity Vest', sellIn: sellIn, quality: quality);
-
-  @override
-  void updateQuality() {
-    if (quality > 0) quality -= 1;
-    sellIn -= 1;
-    if (sellIn < 0)    (quality > 0)? quality -= 1: null;
-
-  }
-}

@@ -1,5 +1,5 @@
 import 'package:test_project/GildedRose.dart';
-import 'package:test_project/model/child_classes.dart';
+import 'package:test_project/model/GildedRose_child_classes.dart';
 
 main(List<String> args) {
   var items = [
