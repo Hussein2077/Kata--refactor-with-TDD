@@ -6,7 +6,7 @@ import 'package:test_project/test.dart';
 void main() {
   group('GildedRose', () {
     test('Normal item decreases quality and sellIn', () {
-      var items = [DexterityVest(10, 20)];
+      var items = [ DexterityVest(10, 20)];
       var app = GildedRose(items);
       app.updateQuality();
       expect(items[0].sellIn, 9);
