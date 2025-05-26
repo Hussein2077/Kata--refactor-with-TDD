@@ -1,38 +1,42 @@
-
 import 'dart:core';
 
 import 'package:test_project/Tennis_game/tennis_game.dart';
 
-
 class TennisGame3 implements TennisGame {
+  int _player1Score = 0;
+  int _player2Score = 0;
+  final String _player1Name;
+  final String _player2Name;
 
-  int _p2 = 0;
-  int _p1 = 0;
-  String _p1N;
-  String _p2N;
+  TennisGame3(this._player1Name, this._player2Name);
 
-  TennisGame3(String this._p1N, String this._p2N);
+  static const List<String> scoreTerms = ["Love", "Fifteen", "Thirty", "Forty"];
 
   String getScore() {
-    String s;
-    if (_p1 < 4 && _p2 < 4 && !(_p1 + _p2 == 6)) {
-      List<String> p = ["Love", "Fifteen", "Thirty", "Forty"];
-      s = p[_p1];
-      return (_p1 == _p2) ? s + "-All" : s + "-" + p[_p2];
+    if (isEarlyGame()) {
+      return _player1Score == _player2Score
+          ? "${scoreTerms[_player1Score]}-All"
+          : "${scoreTerms[_player1Score]}-${scoreTerms[_player2Score]}";
+    }
+
+    if (_player1Score == _player2Score) return "Deuce";
+
+    final leadingPlayer =
+        _player1Score > _player2Score ? _player1Name : _player2Name;
+
+    final scoreDiff = (_player1Score - _player2Score).abs();
+
+    if (scoreDiff == 1) return "Advantage $leadingPlayer";
+    return "Win for $leadingPlayer";
+  }
+  bool isEarlyGame() {
+    return _player1Score < 4 && _player2Score < 4 && (_player1Score + _player2Score != 6);
+  }
+  void wonPoint(String playerName) {
+    if (playerName == "player1") {
+      _player1Score+= 1;
     } else {
-      if (_p1 == _p2)
-        return "Deuce";
-      s = _p1 > _p2 ? _p1N : _p2N;
-      return ((_p1-_p2)*(_p1-_p2) == 1) ? "Advantage " + s : "Win for " + s;
+      _player2Score += 1;
     }
   }
-
-  void wonPoint(String playerName) {
-    if (playerName == "player1")
-      this._p1 += 1;
-    else
-      this._p2 += 1;
-
-  }
-
 }

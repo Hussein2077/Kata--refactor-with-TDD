@@ -2,136 +2,90 @@
 import 'dart:core';
 
 import 'package:test_project/Tennis_game/tennis_game.dart';
+abstract class ScoreStrategy {
+  bool isApplicable(int p1, int p2);
+  String getScore(int p1, int p2, String p1Name, String p2Name);
+}
+class DeuceStrategy implements ScoreStrategy {
+  @override
+  bool isApplicable(int p1, int p2) => p1 >= 3 && p1 == p2;
+
+  @override
+  String getScore(int p1, int p2, String p1Name, String p2Name) => "Deuce";
+}
+
+class EqualScoreStrategy implements ScoreStrategy {
+  final List<String> terms = ["Love-All", "Fifteen-All", "Thirty-All"];
+
+  @override
+  bool isApplicable(int p1, int p2) => p1 == p2 && p1 < 3;
+
+  @override
+  String getScore(int p1, int p2, String p1Name, String p2Name) =>
+      terms[p1];
+}
+
+class AdvantageStrategy implements ScoreStrategy {
+  @override
+  bool isApplicable(int p1, int p2) =>
+      (p1 >= 4 || p2 >= 4) && (p1 - p2).abs() == 1;
+
+  @override
+  String getScore(int p1, int p2, String p1Name, String p2Name) =>
+      "Advantage ${p1 > p2 ? p1Name : p2Name}";
+}
+
+class WinStrategy implements ScoreStrategy {
+  @override
+  bool isApplicable(int p1, int p2) =>
+      (p1 >= 4 || p2 >= 4) && (p1 - p2).abs() >= 2;
+
+  @override
+  String getScore(int p1, int p2, String p1Name, String p2Name) =>
+      "Win for ${p1 > p2 ? p1Name : p2Name}";
+}
+
+class NormalScoreStrategy implements ScoreStrategy {
+  final List<String> terms = ["Love", "Fifteen", "Thirty", "Forty"];
+
+  @override
+  bool isApplicable(int p1, int p2) => true;
+
+  @override
+  String getScore(int p1, int p2, String p1Name, String p2Name) =>
+      "${terms[p1]}-${terms[p2]}";
+}
 
 
-class TennisGame2 implements TennisGame
-{
+class TennisGame2 implements TennisGame {
   int P1point = 0;
   int P2point = 0;
+  final String _player1Name;
+  final String _player2Name;
 
-  String P1res = "";
-  String P2res = "";
-  String _player1Name;
-  String _player2Name;
+  TennisGame2(this._player1Name, this._player2Name);
 
-  TennisGame2(String this._player1Name, String this._player2Name);
+  final List<ScoreStrategy> strategies = [
+    DeuceStrategy(),
+    EqualScoreStrategy(),
+    AdvantageStrategy(),
+    WinStrategy(),
+    NormalScoreStrategy(),
+  ];
 
-  String getScore(){
-    String score = "";
-    if (P1point == P2point && P1point < 4)
-    {
-      if (P1point==0)
-        score = "Love";
-      if (P1point==1)
-        score = "Fifteen";
-      if (P1point==2)
-        score = "Thirty";
-      score += "-All";
-    }
-    if (P1point==P2point && P1point>=3)
-      score = "Deuce";
-
-    if (P1point > 0 && P2point==0)
-    {
-      if (P1point==1)
-        P1res = "Fifteen";
-      if (P1point==2)
-        P1res = "Thirty";
-      if (P1point==3)
-        P1res = "Forty";
-
-      P2res = "Love";
-      score = P1res + "-" + P2res;
-    }
-    if (P2point > 0 && P1point==0)
-    {
-      if (P2point==1)
-        P2res = "Fifteen";
-      if (P2point==2)
-        P2res = "Thirty";
-      if (P2point==3)
-        P2res = "Forty";
-
-      P1res = "Love";
-      score = P1res + "-" + P2res;
-    }
-
-    if (P1point>P2point && P1point < 4)
-    {
-      if (P1point==2)
-        P1res="Thirty";
-      if (P1point==3)
-        P1res="Forty";
-      if (P2point==1)
-        P2res="Fifteen";
-      if (P2point==2)
-        P2res="Thirty";
-      score = P1res + "-" + P2res;
-    }
-    if (P2point>P1point && P2point < 4)
-    {
-      if (P2point==2)
-        P2res="Thirty";
-      if (P2point==3)
-        P2res="Forty";
-      if (P1point==1)
-        P1res="Fifteen";
-      if (P1point==2)
-        P1res="Thirty";
-      score = P1res + "-" + P2res;
-    }
-
-    if (P1point > P2point && P2point >= 3)
-    {
-      score = "Advantage player1";
-    }
-
-    if (P2point > P1point && P1point >= 3)
-    {
-      score = "Advantage player2";
-    }
-
-    if (P1point>=4 && P2point>=0 && (P1point-P2point)>=2)
-    {
-      score = "Win for player1";
-    }
-    if (P2point>=4 && P1point>=0 && (P2point-P1point)>=2)
-    {
-      score = "Win for player2";
-    }
-    return score;
+  @override
+  String getScore() {
+    return strategies
+        .firstWhere((s) => s.isApplicable(P1point, P2point))
+        .getScore(P1point, P2point, _player1Name, _player2Name);
   }
 
-  void SetP1Score(int number){
-
-    for (int i = 0; i < number; i++)
-    {
-      P1Score();
-    }
-
-  }
-
-  void SetP2Score(int number){
-
-    for (int i = 0; i < number; i++)
-    {
-      P2Score();
-    }
-
-  }
-
-  void P1Score(){
-    P1point++;
-  }
-
-  void P2Score(){
-    P2point++;
-  }
-
+  @override
   void wonPoint(String player) {
-    if (player == "player1")
-      P1Score();
-    else
-      P2Score();
+    if (player == "player1") {
+      P1point++;
+    } else {
+      P2point++;
+    }
   }
 }
